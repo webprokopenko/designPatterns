@@ -29,6 +29,8 @@ function spider(url,callback){
                     });
                 }
             });
+        }else{
+            callback(null,filename,false);
         }
     });
 }
