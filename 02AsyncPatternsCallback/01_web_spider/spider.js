@@ -11,23 +11,16 @@ function spider(url,callback){
             console.log(`Downloading ${url}`);
             request(url, (err, response, body)=>{
                 if(err)
-                {
                     callback(err);
-                } else{
-                    mkdirp(path.dirname(filename), err=>{
-                        if(err){
+                mkdirp(path.dirname(filename), err=>{
+                        if(err)
                             callback(err)
-                        } else {
                             fs.writeFile(filename, body, err=>{
-                                if(err){
-                                    callback(err);
-                                } else {
+                                if(err)
+                                    callback(err);        
                                     callback(null, filename, true);
-                                }
-                            })
-                        }
+                            });
                     });
-                }
             });
         }else{
             callback(null,filename,false);
