@@ -4,35 +4,47 @@ const mkdirp = require('mkdirp');
 const path = require('path');
 const utilities = require('./utilities');
 
+function saveFile(filename, contents, callback){
+    mkdirp(path.dirname(filename), err=>{
+        if(err)
+            return callback(err);
+        fs.writeFile(filename, contents, callback)
+    });
+}
+function download(url, filename, callback){
+    console.log(`Downloading ${url}`);
+    request(url, (err, response, body)=>{
+        if(err)
+            return callback(err);
+    
+    saveFile(filename, body, err=>{
+        if(err)
+            return callback(err);
+    console.log(`Downloaded and saved: ${url}`);
+    callback(null,body);
+    });
+});
+}
 function spider(url,callback){
     const filename = utilities.urlToFilename(url);
     fs.exists(filename, exists=>{
-        if(!exists){
-            console.log(`Downloading ${url}`);
-            request(url, (err, response, body)=>{
-                if(err)
-                    callback(err);
-                mkdirp(path.dirname(filename), err=>{
-                        if(err)
-                            callback(err)
-                            fs.writeFile(filename, body, err=>{
-                                if(err)
-                                    callback(err);        
-                                    callback(null, filename, true);
-                            });
-                    });
-            });
-        }else{
-            callback(null,filename,false);
+        if(exists){
+            return callback(null, filename, false);
         }
+        download(url, filename, err=>{
+            if(err)
+                return callback(err);
+        });
+        callback(null, filename, true);
+            
     });
-}
-spider('http://mafiarave.co',(err, filename, downloaded)=>{
+};
+spider('http://mafiarave.co',(err,downloaded)=>{
     if(err)
         console.log(err);
     else if(downloaded){
-        console.log(`Completed the download of "${filename}"`);
+        console.log(`Completed the download of`);
     } else {
-        console.log(`"${filename}" was already downloaded`);
+        console.log(` was already downloaded`);
     }
-})
+});
